@@ -11,7 +11,7 @@ export class TrackedPromise<T, E = any>
   }
 
   public constructor(
-    promise: Promise<T>,
+    public readonly promise: Promise<T>,
     previousStatus?: PromiseStatus<T, E>,
   ) {
     this.statusSubject = new BehaviorSubject<PromiseStatus<T, E>>(
@@ -27,10 +27,6 @@ export class TrackedPromise<T, E = any>
           this.statusSubject?.next(nextStatus);
           if (!nextStatus.isPending) {
             this.statusSubject?.complete();
-            console.warn(
-              "complete has been called",
-              this.statusSubject.complete,
-            );
           }
         },
         previousStatus,

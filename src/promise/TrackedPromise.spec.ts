@@ -106,7 +106,6 @@ describe("TrackedPromise", () => {
       () => {},
     );
     // Assert
-    console.warn("marker");
     expect(complete).toHaveBeenCalled();
   });
   it("maintains value from previous status", async () => {
