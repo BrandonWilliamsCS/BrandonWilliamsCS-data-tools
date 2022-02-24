@@ -1,13 +1,15 @@
-import { BehaviorSubject, Observer, Subscribable } from "../observable";
+import { BehaviorSubject, Observable } from "rxjs";
 import { PromiseStatus, trackPromiseStatus } from "./index";
 
-export class TrackedPromise<T, E = any>
-  implements Subscribable<PromiseStatus<T, E>>
-{
-  private statusSubject!: BehaviorSubject<PromiseStatus<T, E>>;
+export class TrackedPromise<T, E = any> {
+  private readonly statusSubject!: BehaviorSubject<PromiseStatus<T, E>>;
 
-  public get currentStatus() {
-    return this.statusSubject.currentValue;
+  public get currentStatus(): PromiseStatus<T, E> {
+    return this.statusSubject.value;
+  }
+
+  public get statuses(): Observable<PromiseStatus<T, E>> {
+    return this.statusSubject;
   }
 
   public constructor(
@@ -32,9 +34,5 @@ export class TrackedPromise<T, E = any>
         previousStatus,
       ),
     );
-  }
-
-  public subscribe(observer: Partial<Observer<PromiseStatus<T, E>>>) {
-    return this.statusSubject.subscribe(observer);
   }
 }

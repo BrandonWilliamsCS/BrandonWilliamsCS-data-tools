@@ -7,7 +7,7 @@ describe("TrackedPromise", () => {
     const tracked = new TrackedPromise(promise);
     const next = jest.fn();
     // Act
-    tracked.subscribe({ next });
+    tracked.statuses.subscribe({ next });
     // Assert
     expect(next).toHaveBeenCalledWith({
       isPending: true,
@@ -28,7 +28,7 @@ describe("TrackedPromise", () => {
     const tracked = new TrackedPromise(promise);
     const next = jest.fn();
     // Act
-    tracked.subscribe({ next });
+    tracked.statuses.subscribe({ next });
     resolve("value");
     await promise.then(
       () => {},
@@ -56,7 +56,7 @@ describe("TrackedPromise", () => {
     const tracked = new TrackedPromise(promise);
     const complete = jest.fn();
     // Act
-    tracked.subscribe({ complete });
+    tracked.statuses.subscribe({ complete });
     resolve("value");
     await promise.then(
       () => {},
@@ -71,7 +71,7 @@ describe("TrackedPromise", () => {
     const tracked = new TrackedPromise(promise);
     const next = jest.fn();
     // Act
-    tracked.subscribe({ next });
+    tracked.statuses.subscribe({ next });
     reject("error");
     await promise.then(
       () => {},
@@ -99,7 +99,7 @@ describe("TrackedPromise", () => {
     const tracked = new TrackedPromise(promise);
     const complete = jest.fn();
     // Act
-    tracked.subscribe({ complete });
+    tracked.statuses.subscribe({ complete });
     reject("error");
     await promise.then(
       () => {},
@@ -121,7 +121,7 @@ describe("TrackedPromise", () => {
     const tracked = new TrackedPromise(promise, previousStatus);
     const next = jest.fn();
     // Act
-    tracked.subscribe({ next });
+    tracked.statuses.subscribe({ next });
     // Assert
     expect(next).toHaveBeenCalledWith({
       isPending: true,

@@ -23,11 +23,11 @@ export type PromiseStatus<T, E = any> = Readonly<
     )
 >;
 
-export const initialStatus: PromiseStatus<any> = Object.freeze({
+export const initialStatus: PromiseStatus<never> = Object.freeze({
   isPending: false,
   hasValue: false,
   hasError: false,
-  source: new Promise(() => {}),
+  source: new Promise<never>(() => {}),
 });
 
 export function processPromise<T, E = any>(

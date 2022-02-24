@@ -7,7 +7,7 @@ describe("TrackedPromiseSequence", () => {
     const trackedSequence = new TrackedPromiseSequence();
     const next = jest.fn();
     // Act
-    trackedSequence.subscribe({ next });
+    trackedSequence.statuses.subscribe({ next });
     // Assert
     expect(next).toHaveBeenCalledWith(initialStatus);
   });
@@ -17,7 +17,7 @@ describe("TrackedPromiseSequence", () => {
     const { promise } = makePromise<string, string>();
     const next = jest.fn();
     // Act
-    trackedSequence.subscribe({ next });
+    trackedSequence.statuses.subscribe({ next });
     trackedSequence.next(promise);
     // Assert
     expect(next).toHaveBeenCalledWith({
@@ -39,7 +39,7 @@ describe("TrackedPromiseSequence", () => {
     const { promise, resolve } = makePromise<string, string>();
     const next = jest.fn();
     // Act
-    trackedSequence.subscribe({ next });
+    trackedSequence.statuses.subscribe({ next });
     trackedSequence.next(promise);
     resolve("value");
     await promise;
@@ -65,7 +65,7 @@ describe("TrackedPromiseSequence", () => {
     const { promise, resolve } = makePromise<string, string>();
     const complete = jest.fn();
     // Act
-    trackedSequence.subscribe({ complete });
+    trackedSequence.statuses.subscribe({ complete });
     trackedSequence.next(promise);
     resolve("value");
     await promise;
@@ -82,7 +82,7 @@ describe("TrackedPromiseSequence", () => {
     const { promise: promise2 } = makePromise<string, string>();
     const next = jest.fn();
     // Act
-    trackedSequence.subscribe({ next });
+    trackedSequence.statuses.subscribe({ next });
     trackedSequence.next(promise1);
     resolve1("value1");
     await promise1;
@@ -113,7 +113,7 @@ describe("TrackedPromiseSequence", () => {
     const { promise: promise2 } = makePromise<string, string>();
     const next = jest.fn();
     // Act
-    trackedSequence.subscribe({ next });
+    trackedSequence.statuses.subscribe({ next });
     trackedSequence.next(promise1);
     trackedSequence.next(promise2);
     resolve1("value1");
