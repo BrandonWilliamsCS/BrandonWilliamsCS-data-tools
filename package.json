@@ -1,5 +1,5 @@
 {
-  "name": "@blueharborsolutions/data-tools",
+  "name": "@brandonwilliamscs/data-tools",
   "version": "0.1.0",
   "description": "Simple tools for facilitating the flow of data.",
   "main": "dist/index.js",
@@ -11,8 +11,8 @@
     "link": "copy package.json dist\\package.json && cd dist && npm link",
     "test": "jest --watch"
   },
-  "author": "Brandon Williams <Brandon.Willams@BlueHarborSolutions.com>",
-  "license": "ISC",
+  "author": "Brandon Williams",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^26.0.22",
     "jest": "^26.6.3",
