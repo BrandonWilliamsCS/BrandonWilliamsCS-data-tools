@@ -12,15 +12,21 @@
  *  type T. If it is false, there *is no value field* - attempting to access it
  *  is an error.
  */
-export type PromiseStatus<T, E = any> = Readonly<
-  { source: Promise<T> } & (
-    | { hasValue: false }
-    | { hasValue: true; value: T }
-  ) &
-    (
-      | { hasError: false; isPending: boolean }
-      | { isPending: false; hasError: true; error: E }
-    )
+export type PromiseStatus<T, E = any> = PromiseStatusBase<T> &
+  PromiseStatusValue<T> &
+  PromiseStatusError<E>;
+
+export interface PromiseStatusBase<T> {
+  readonly source: Promise<T>;
+}
+
+export type PromiseStatusValue<T> = Readonly<
+  { hasValue: false } | { hasValue: true; value: T }
+>;
+
+export type PromiseStatusError<E> = Readonly<
+  | { hasError: false; isPending: boolean }
+  | { hasError: true; isPending: false; error: E }
 >;
 
 export const initialStatus: PromiseStatus<never> = Object.freeze({
@@ -86,4 +92,21 @@ export function fail<T, E>(
     };
   }
   return next;
+}
+
+export function mapPromiseStatus<T, U, E>(
+  baseStatus: PromiseStatus<T, E>,
+  mapper: (value: T) => U,
+  mappedSource: Promise<U>,
+): PromiseStatus<U, E> {
+  return baseStatus.hasValue
+    ? {
+        ...baseStatus,
+        value: mapper(baseStatus.value),
+        source: mappedSource,
+      }
+    : {
+        ...baseStatus,
+        source: mappedSource,
+      };
 }

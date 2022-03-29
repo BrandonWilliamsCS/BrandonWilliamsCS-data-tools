@@ -1,4 +1,10 @@
-import { processPromise, succeed, fail, PromiseStatus } from "./PromiseStatus";
+import {
+  processPromise,
+  succeed,
+  fail,
+  PromiseStatus,
+  mapPromiseStatus,
+} from "./PromiseStatus";
 
 describe("processPromise", () => {
   it("maintains the promise as a source", () => {
@@ -208,5 +214,74 @@ describe("fail", () => {
     expect(status.hasValue).toBe(true);
     if (!status.hasValue) return;
     expect(status.value).toBe(5);
+  });
+});
+
+describe("mapPromiseStatus", () => {
+  it("uses the provided source promise when given", () => {
+    // Arrange
+    const baseStatus: PromiseStatus<number> = {
+      isPending: false,
+      hasValue: false,
+      hasError: false,
+      source: new Promise<number>(() => {}),
+    };
+    const mapper = (n: number) => n.toString();
+    const mappedPromise = baseStatus.source.then(mapper);
+    // Act
+    const mappedStatus = mapPromiseStatus(baseStatus, mapper, mappedPromise);
+    // Assert
+    expect(mappedStatus.source).toBe(mappedPromise);
+  });
+  it("preserves pending and error state from the base status", () => {
+    // Arrange
+    const baseStatus: PromiseStatus<number> = {
+      isPending: false,
+      hasValue: false,
+      hasError: true,
+      error: new Error("Test Error"),
+      source: new Promise<number>(() => {}),
+    };
+    const mapper = (n: number) => n.toString();
+    const mappedPromise = baseStatus.source.then(mapper);
+    // Act
+    const mappedStatus = mapPromiseStatus(baseStatus, mapper, mappedPromise);
+    // Assert
+    expect(mappedStatus).toMatchObject({
+      isPending: false,
+      hasError: true,
+      error: new Error("Test Error"),
+    });
+  });
+  it("uses the provided source promise when given", () => {
+    // Arrange
+    const baseStatus: PromiseStatus<number> = {
+      isPending: false,
+      hasValue: false,
+      hasError: false,
+      source: new Promise<number>(() => {}),
+    };
+    const mapper = (n: number) => n.toString();
+    const mappedPromise = baseStatus.source.then(mapper);
+    // Act
+    const mappedStatus = mapPromiseStatus(baseStatus, mapper, mappedPromise);
+    // Assert
+    expect(mappedStatus.hasValue).toBe(false);
+  });
+  it("maps values when present in base", () => {
+    // Arrange
+    const baseStatus: PromiseStatus<number> = {
+      isPending: false,
+      hasValue: true,
+      value: 1,
+      hasError: false,
+      source: new Promise<number>(() => {}),
+    };
+    const mapper = (n: number) => n.toString();
+    const mappedPromise = baseStatus.source.then(mapper);
+    // Act
+    const mappedStatus = mapPromiseStatus(baseStatus, mapper, mappedPromise);
+    // Assert
+    expect(mappedStatus.hasValue && mappedStatus.value).toBe("1");
   });
 });
