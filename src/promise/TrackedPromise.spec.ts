@@ -1,10 +1,11 @@
+import { makeTestPromise } from "../testUtility/makeTestPromise";
 import { TrackedPromise } from "./TrackedPromise";
 
 describe("TrackedPromise", () => {
   describe("currentStatus", () => {
     it("emits a pending status initially", async () => {
       // Arrange
-      const { promise } = makePromise<string, string>();
+      const { promise } = makeTestPromise<string, string>();
       // Act
       const tracked = new TrackedPromise(promise);
       // Assert
@@ -17,7 +18,7 @@ describe("TrackedPromise", () => {
     });
     it("is a success status when promise resolves", async () => {
       // Arrange
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       // Act
       resolve("value");
@@ -36,7 +37,7 @@ describe("TrackedPromise", () => {
     });
     it("is an error status after promise rejects", async () => {
       // Arrange
-      const { promise, reject } = makePromise<string, string>();
+      const { promise, reject } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       // Act
       reject("error");
@@ -55,7 +56,7 @@ describe("TrackedPromise", () => {
     });
     it("maintains value from previous status", async () => {
       // Arrange
-      const { promise } = makePromise<string, string>();
+      const { promise } = makeTestPromise<string, string>();
       const previousStatus = {
         isPending: false,
         hasError: false,
@@ -78,7 +79,7 @@ describe("TrackedPromise", () => {
   describe("statusChanges", () => {
     it("does not emit upon subscribe", async () => {
       // Arrange
-      const { promise } = makePromise<string, string>();
+      const { promise } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const next = jest.fn();
       // Act
@@ -88,7 +89,7 @@ describe("TrackedPromise", () => {
     });
     it("emits a success status when promise resolves", async () => {
       // Arrange
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const next = jest.fn();
       // Act
@@ -109,7 +110,7 @@ describe("TrackedPromise", () => {
     });
     it("emits complete when promise resolves", async () => {
       // Arrange
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const complete = jest.fn();
       // Act
@@ -124,7 +125,7 @@ describe("TrackedPromise", () => {
     });
     it("emits an error status when promise rejects", async () => {
       // Arrange
-      const { promise, reject } = makePromise<string, string>();
+      const { promise, reject } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const next = jest.fn();
       // Act
@@ -145,7 +146,7 @@ describe("TrackedPromise", () => {
     });
     it("emits complete when promise rejects", async () => {
       // Arrange
-      const { promise, reject } = makePromise<string, string>();
+      const { promise, reject } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const complete = jest.fn();
       // Act
@@ -160,7 +161,7 @@ describe("TrackedPromise", () => {
     });
     it("maintains value from previous status", async () => {
       // Arrange
-      const { promise, reject } = makePromise<string, string>();
+      const { promise, reject } = makeTestPromise<string, string>();
       const previousStatus = {
         isPending: false,
         hasError: false,
@@ -191,7 +192,7 @@ describe("TrackedPromise", () => {
   describe("statuses", () => {
     it("emits a pending status initially upon subscribe", async () => {
       // Arrange
-      const { promise } = makePromise<string, string>();
+      const { promise } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const next = jest.fn();
       // Act
@@ -206,7 +207,7 @@ describe("TrackedPromise", () => {
     });
     it("emits a success status when promise resolves", async () => {
       // Arrange
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const next = jest.fn();
       // Act
@@ -227,7 +228,7 @@ describe("TrackedPromise", () => {
     });
     it("emits complete when promise resolves", async () => {
       // Arrange
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const complete = jest.fn();
       // Act
@@ -242,7 +243,7 @@ describe("TrackedPromise", () => {
     });
     it("emits an error status when promise rejects", async () => {
       // Arrange
-      const { promise, reject } = makePromise<string, string>();
+      const { promise, reject } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const next = jest.fn();
       // Act
@@ -263,7 +264,7 @@ describe("TrackedPromise", () => {
     });
     it("emits complete when promise rejects", async () => {
       // Arrange
-      const { promise, reject } = makePromise<string, string>();
+      const { promise, reject } = makeTestPromise<string, string>();
       const tracked = new TrackedPromise(promise);
       const complete = jest.fn();
       // Act
@@ -278,7 +279,7 @@ describe("TrackedPromise", () => {
     });
     it("maintains value from previous status", async () => {
       // Arrange
-      const { promise } = makePromise<string, string>();
+      const { promise } = makeTestPromise<string, string>();
       const previousStatus = {
         isPending: false,
         hasError: false,
@@ -301,18 +302,3 @@ describe("TrackedPromise", () => {
     });
   });
 });
-
-function makePromise<T, E>() {
-  let resolve!: (t: T) => void;
-  let reject!: (e: E) => void;
-  const promise = new Promise<T>((_resolve, _reject) => {
-    resolve = _resolve;
-    reject = _reject;
-  });
-
-  return {
-    promise,
-    resolve,
-    reject,
-  };
-}

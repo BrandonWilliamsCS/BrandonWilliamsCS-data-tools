@@ -1,4 +1,5 @@
 import { Subject } from "rxjs";
+import { makeTestPromise } from "../testUtility/makeTestPromise";
 import { PromiseStatus } from "./PromiseStatus";
 import {
   mapPromiseStatusStream,
@@ -76,23 +77,8 @@ describe("mapPromiseStatusStream", () => {
   });
 });
 
-function makePromise<T, E = any>() {
-  let resolve!: (t: T) => void;
-  let reject!: (e: E) => void;
-  const promise = new Promise<T>((_resolve, _reject) => {
-    resolve = _resolve;
-    reject = _reject;
-  });
-
-  return {
-    promise,
-    resolve,
-    reject,
-  };
-}
-
 function makeBaseStream<T>() {
-  const { promise } = makePromise<T>();
+  const { promise } = makeTestPromise<T>();
   const statusSubject = new Subject<PromiseStatus<T>>();
   let currentStatus: PromiseStatus<T> = {
     isPending: true,

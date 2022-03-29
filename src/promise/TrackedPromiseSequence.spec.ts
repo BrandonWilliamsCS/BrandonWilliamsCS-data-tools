@@ -1,3 +1,4 @@
+import { makeTestPromise } from "../testUtility/makeTestPromise";
 import { initialStatus } from "./PromiseStatus";
 import { TrackedPromiseSequence } from "./TrackedPromiseSequence";
 
@@ -13,7 +14,7 @@ describe("TrackedPromiseSequence", () => {
     it("is a pending status immediately after being given a promise", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise } = makePromise<string, string>();
+      const { promise } = makeTestPromise<string, string>();
       // Act
       trackedSequence.next(promise);
       // Assert
@@ -27,7 +28,7 @@ describe("TrackedPromiseSequence", () => {
     it("is a success status once promise resolves", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       // Act
       trackedSequence.next(promise);
       resolve("value");
@@ -44,11 +45,11 @@ describe("TrackedPromiseSequence", () => {
     it("is a pending status with prior value immediately after being given a second promise", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise: promise1, resolve: resolve1 } = makePromise<
+      const { promise: promise1, resolve: resolve1 } = makeTestPromise<
         string,
         string
       >();
-      const { promise: promise2 } = makePromise<string, string>();
+      const { promise: promise2 } = makeTestPromise<string, string>();
       // Act
       trackedSequence.next(promise1);
       resolve1("value1");
@@ -66,11 +67,11 @@ describe("TrackedPromiseSequence", () => {
     it("does not emit a success status if promise is switched before the first resolves", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise: promise1, resolve: resolve1 } = makePromise<
+      const { promise: promise1, resolve: resolve1 } = makeTestPromise<
         string,
         string
       >();
-      const { promise: promise2 } = makePromise<string, string>();
+      const { promise: promise2 } = makeTestPromise<string, string>();
       // Act
       trackedSequence.next(promise1);
       trackedSequence.next(promise2);
@@ -98,7 +99,7 @@ describe("TrackedPromiseSequence", () => {
     it("does not emit upon subscribe even after new promise", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise } = makePromise<string, string>();
+      const { promise } = makeTestPromise<string, string>();
       trackedSequence.next(promise);
       const next = jest.fn();
       // Act
@@ -109,7 +110,7 @@ describe("TrackedPromiseSequence", () => {
     it("emits a pending status immediately after being given a promise", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise } = makePromise<string, string>();
+      const { promise } = makeTestPromise<string, string>();
       const next = jest.fn();
       // Act
       trackedSequence.statusChanges.subscribe({ next });
@@ -125,7 +126,7 @@ describe("TrackedPromiseSequence", () => {
     it("emits a success status when promise resolves (even when subscribing after setting promise)", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       const next = jest.fn();
       // Act
       trackedSequence.next(promise);
@@ -144,7 +145,7 @@ describe("TrackedPromiseSequence", () => {
     it("does not complete when promise resolves", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       const complete = jest.fn();
       // Act
       trackedSequence.statusChanges.subscribe({ complete });
@@ -157,11 +158,11 @@ describe("TrackedPromiseSequence", () => {
     it("emits a pending status with prior value immediately after being given a second promise", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise: promise1, resolve: resolve1 } = makePromise<
+      const { promise: promise1, resolve: resolve1 } = makeTestPromise<
         string,
         string
       >();
-      const { promise: promise2 } = makePromise<string, string>();
+      const { promise: promise2 } = makeTestPromise<string, string>();
       const next = jest.fn();
       // Act
       trackedSequence.statusChanges.subscribe({ next });
@@ -181,11 +182,11 @@ describe("TrackedPromiseSequence", () => {
     it("does not emit a success status if promise is switched before the first resolves", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise: promise1, resolve: resolve1 } = makePromise<
+      const { promise: promise1, resolve: resolve1 } = makeTestPromise<
         string,
         string
       >();
-      const { promise: promise2 } = makePromise<string, string>();
+      const { promise: promise2 } = makeTestPromise<string, string>();
       const next = jest.fn();
       // Act
       trackedSequence.statusChanges.subscribe({ next });
@@ -222,7 +223,7 @@ describe("TrackedPromiseSequence", () => {
     it("emits a pending status immediately after being given a promise", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise } = makePromise<string, string>();
+      const { promise } = makeTestPromise<string, string>();
       const next = jest.fn();
       // Act
       trackedSequence.statuses.subscribe({ next });
@@ -238,7 +239,7 @@ describe("TrackedPromiseSequence", () => {
     it("emits a success status once promise resolves", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       const next = jest.fn();
       // Act
       trackedSequence.statuses.subscribe({ next });
@@ -257,7 +258,7 @@ describe("TrackedPromiseSequence", () => {
     it("does not complete once promise resolves", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise, resolve } = makePromise<string, string>();
+      const { promise, resolve } = makeTestPromise<string, string>();
       const complete = jest.fn();
       // Act
       trackedSequence.statuses.subscribe({ complete });
@@ -270,11 +271,11 @@ describe("TrackedPromiseSequence", () => {
     it("emits a pending status with prior value immediately after being given a second promise", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise: promise1, resolve: resolve1 } = makePromise<
+      const { promise: promise1, resolve: resolve1 } = makeTestPromise<
         string,
         string
       >();
-      const { promise: promise2 } = makePromise<string, string>();
+      const { promise: promise2 } = makeTestPromise<string, string>();
       const next = jest.fn();
       // Act
       trackedSequence.statuses.subscribe({ next });
@@ -294,11 +295,11 @@ describe("TrackedPromiseSequence", () => {
     it("does not emit a success status if promise is switched before the first resolves", async () => {
       // Arrange
       const trackedSequence = new TrackedPromiseSequence();
-      const { promise: promise1, resolve: resolve1 } = makePromise<
+      const { promise: promise1, resolve: resolve1 } = makeTestPromise<
         string,
         string
       >();
-      const { promise: promise2 } = makePromise<string, string>();
+      const { promise: promise2 } = makeTestPromise<string, string>();
       const next = jest.fn();
       // Act
       trackedSequence.statuses.subscribe({ next });
@@ -323,13 +324,3 @@ describe("TrackedPromiseSequence", () => {
     });
   });
 });
-
-function makePromise<T, E>() {
-  let resolve!: (t: T) => void;
-  let reject!: (e: E) => void;
-  const promise = new Promise<T>((_resolve, _reject) => {
-    resolve = _resolve;
-    reject = _reject;
-  });
-  return { promise, resolve, reject };
-}
