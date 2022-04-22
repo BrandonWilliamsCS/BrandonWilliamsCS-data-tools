@@ -8,24 +8,16 @@ import { OperationModel } from "./OperationModel";
 
 describe("OperationModel", () => {
   describe("execute", () => {
-    it("calls operation with params and last good value", async () => {
+    it("calls operation with params", async () => {
       // Arrange
       const { operation, promiseSets } = makeTestOperation();
       const operationModel = new OperationModel(operation);
       // Act
       operationModel.execute("parameter1");
-      promiseSets[0].resolve("result1");
-      await promiseSets[0].promise;
-      operationModel.execute("parameter2");
       // Assert
-      expect(operation).toHaveBeenLastCalledWith(
-        "parameter2",
-        expect.objectContaining({
-          value: "result1",
-        }),
-      );
+      expect(operation).toHaveBeenLastCalledWith("parameter1");
     });
-    it("returns the TrackedPromise from the operation", async () => {
+    it("returns the tracked promise from the operation", async () => {
       // Arrange
       const { operation, promiseSets } = makeTestOperation();
       const operationModel = new OperationModel(operation);
@@ -75,7 +67,7 @@ describe("OperationModel", () => {
         value: "result",
       });
     });
-    it("is a pending status with prior value immediately after a second execution", async () => {
+    it("is a pending status immediately after a second execution", async () => {
       // Arrange
       const { operation, promiseSets } = makeTestOperation();
       const operationModel = new OperationModel(operation);
@@ -89,9 +81,25 @@ describe("OperationModel", () => {
         isPending: true,
         hasError: false,
         source: promiseSets[1].promise,
-        hasValue: true,
-        value: "result1",
+        hasValue: false,
       });
+    });
+    it("maintains value from prior execution when instructed", async () => {
+      // Arrange
+      const { operation, promiseSets } = makeTestOperation();
+      const operationModel = new OperationModel(operation, true);
+      // Act
+      operationModel.execute("parameter1");
+      promiseSets[0].resolve("result1");
+      await promiseSets[0].promise;
+      operationModel.execute("parameter2");
+      // Assert
+      expect(operationModel.currentStatus).toEqual(
+        expect.objectContaining({
+          hasValue: true,
+          value: "result1",
+        }),
+      );
     });
     it("is not a success status if second execution happens before the first resolves", async () => {
       // Arrange
@@ -149,7 +157,7 @@ describe("OperationModel", () => {
         hasValue: false,
       });
     });
-    it("emits a success status when execution resolves (even when subscribing after execution)", async () => {
+    it("emits a success status when execution resolves (even when subscribing after execution starts)", async () => {
       // Arrange
       const { operation, promiseSets } = makeTestOperation();
       const operationModel = new OperationModel(operation);
@@ -181,7 +189,7 @@ describe("OperationModel", () => {
       // Assert
       expect(complete).not.toHaveBeenCalled();
     });
-    it("emits a pending status with prior value immediately after a second execution", async () => {
+    it("emits a pending status immediately after a second execution", async () => {
       // Arrange
       const { operation, promiseSets } = makeTestOperation();
       const operationModel = new OperationModel(operation);
@@ -198,9 +206,28 @@ describe("OperationModel", () => {
         isPending: true,
         hasError: false,
         source: promiseSets[1].promise,
-        hasValue: true,
-        value: "result1",
+        hasValue: false,
       });
+    });
+    it("maintains value from prior execution when instructed", async () => {
+      // Arrange
+      const { operation, promiseSets } = makeTestOperation();
+      const operationModel = new OperationModel(operation, true);
+      const { promise: promise2 } = makeTestPromise<string, string>();
+      const next = jest.fn();
+      // Act
+      operationModel.statusChanges.subscribe({ next });
+      operationModel.execute("parameter1");
+      promiseSets[0].resolve("result1");
+      await promiseSets[0].promise;
+      operationModel.execute("parameter2");
+      // Assert
+      expect(next).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          hasValue: true,
+          value: "result1",
+        }),
+      );
     });
     it("does not emit a success status if second execution happens before the first resolves", async () => {
       // Arrange
@@ -233,12 +260,12 @@ describe("OperationModel", () => {
 
 function makeTestOperation() {
   const promiseSets: Array<TestPromiseSet<string, string>> = [];
-  const operation: Operation<string, string, string> = jest
+  const operation: Operation<string, string> = jest
     .fn()
-    .mockImplementation((_, previousStatus) => {
+    .mockImplementation(() => {
       const promiseSet = makeTestPromise<string, string>();
       promiseSets.push(promiseSet);
-      return new TrackedPromise(promiseSet.promise, previousStatus);
+      return promiseSet.promise;
     });
   return { operation, promiseSets };
 }

@@ -301,4 +301,16 @@ describe("TrackedPromise", () => {
       });
     });
   });
+  describe("promise behavior", () => {
+    it("is `await`able to the promised value", async () => {
+      // Arrange
+      const { promise, resolve } = makeTestPromise<string, string>();
+      const tracked = new TrackedPromise(promise);
+      // Act
+      resolve("result");
+      const result = await tracked;
+      // Assert
+      expect(result).toEqual("result");
+    });
+  });
 });

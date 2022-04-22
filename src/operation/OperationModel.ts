@@ -41,13 +41,19 @@ export class OperationModel<Q, R, E = unknown>
     );
   }
 
-  public constructor(private readonly operation: Operation<Q, R, E>) {
+  public constructor(
+    private readonly operation: Operation<Q, R>,
+    private readonly preserveLatestValue?: boolean,
+  ) {
     // Make `execute` easy to use as a standalone function.
     this.execute = this.execute.bind(this);
   }
 
   public execute(parameters: Q): TrackedPromise<R, E> {
-    const trackedPromise = this.operation(parameters, this.currentStatus);
+    const trackedPromise = new TrackedPromise(
+      this.operation(parameters),
+      this.preserveLatestValue ? this.currentStatus : undefined,
+    );
     this.firstStatusSubject.next(trackedPromise.currentStatus);
     this.trackerSubject.next(trackedPromise);
     return trackedPromise;
