@@ -49,7 +49,6 @@ export class AsyncValueModel<T> implements AsyncStatusStream<T> {
     return trackedPromise;
   }
 
-  //!! call automatically?
   public signalDemand() {
     if (this.currentStatus === initialStatus) {
       this.reload();
