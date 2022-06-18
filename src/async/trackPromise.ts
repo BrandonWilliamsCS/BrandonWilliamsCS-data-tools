@@ -1,4 +1,4 @@
-import { AsyncStatus, processPromise, succeed, fail } from "./AsyncStatus";
+import { AsyncStatus, process, succeed, fail } from "./AsyncStatus";
 
 export function trackPromise<T, E = any>(
   promise: Promise<T>,
@@ -6,12 +6,12 @@ export function trackPromise<T, E = any>(
   previous?: AsyncStatus<T, E>,
 ): AsyncStatus<T, E> {
   // Immediately record that the data is being processed.
-  let currentStatus = processPromise(promise, previous);
+  let currentStatus = process(previous);
   onChange(currentStatus);
   // And then update once a result is available.
   promise
     .then((result) => {
-      currentStatus = succeed(currentStatus, result);
+      currentStatus = succeed(result);
       onChange(currentStatus);
     })
     .catch((error) => {

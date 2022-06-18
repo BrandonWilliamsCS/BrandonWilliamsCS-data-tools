@@ -6,22 +6,16 @@
  * the "last good value" even when the current promise is still pending or has
  * rejected. Thus, a single status may be pending, in error, or neither; in any
  * of those cases, it may also record the value of a prior succesful resolution.
- * 
+ *
  * @remarks
- * 
+ *
  * Note that this type definition utilizes a feature of TypeScript that allows
  * the presence or absence of a value or error to be established without
  * explicitly using undefined; if hasValue is true, there is a value field with
  * type T. If it is false, there *is no value field* - attempting to access it
  * is an error.
  */
-export type AsyncStatus<T, E = any> = AsyncStatusBase<T> &
-  AsyncStatusValue<T> &
-  AsyncStatusError<E>;
-
-export interface AsyncStatusBase<T> {
-  readonly source: Promise<T>;
-}
+export type AsyncStatus<T, E = any> = AsyncStatusValue<T> & AsyncStatusError<E>;
 
 export type AsyncStatusValue<T> = Readonly<
   { hasValue: false } | { hasValue: true; value: T }
@@ -39,38 +33,29 @@ export const initialStatus: AsyncStatus<never> = Object.freeze({
   source: new Promise<never>(() => {}),
 });
 
-export function processPromise<T, E = any>(
-  promise: Promise<T>,
+export function process<T, E = any>(
   previousStatus?: AsyncStatus<T, E>,
 ): AsyncStatus<T, E> {
-  let next: AsyncStatus<T, E> = {
-    isPending: true,
-    hasError: false,
-    source: promise,
-    // First, assume no value.
-    hasValue: false,
-  };
-  // Note the previous value if present.
-  if (previousStatus?.hasValue) {
-    next = {
-      ...next,
-      hasValue: true,
-      value: previousStatus.value,
-    };
-  }
-  return next;
+  return previousStatus?.hasValue
+    ? {
+        isPending: true,
+        hasError: false,
+        hasValue: true,
+        value: previousStatus.value,
+      }
+    : {
+        isPending: true,
+        hasError: false,
+        hasValue: false,
+      };
 }
 
-export function succeed<T, E>(
-  previous: AsyncStatus<T, E>,
-  result: T,
-): AsyncStatus<T, E> {
+export function succeed<T, E>(result: T): AsyncStatus<T, E> {
   return {
     hasValue: true,
     value: result,
     isPending: false,
     hasError: false,
-    source: previous.source,
   };
 }
 
@@ -82,7 +67,6 @@ export function fail<T, E>(
     hasError: true,
     error,
     isPending: false,
-    source: previous.source,
     // First, assume no value.
     hasValue: false,
   };
@@ -100,16 +84,11 @@ export function fail<T, E>(
 export function mapAsyncStatus<T, U, E>(
   baseStatus: AsyncStatus<T, E>,
   mapper: (value: T) => U,
-  mappedSource: Promise<U>,
 ): AsyncStatus<U, E> {
   return baseStatus.hasValue
     ? {
         ...baseStatus,
         value: mapper(baseStatus.value),
-        source: mappedSource,
       }
-    : {
-        ...baseStatus,
-        source: mappedSource,
-      };
+    : baseStatus;
 }

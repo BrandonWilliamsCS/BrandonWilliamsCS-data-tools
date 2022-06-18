@@ -1,71 +1,55 @@
 import {
-  processPromise,
+  process,
   succeed,
   fail,
   AsyncStatus,
   mapAsyncStatus,
 } from "./AsyncStatus";
 
-describe("processPromise", () => {
-  it("maintains the promise as a source", () => {
-    // Arrange
-    const promise = new Promise(() => {});
-    // Act
-    const status = processPromise(promise);
-    // Assert
-    expect(status.source).toBe(promise);
-  });
-
+describe("process", () => {
   it("produces a pending status", () => {
     // Arrange
-    const promise = new Promise(() => {});
     // Act
-    const status = processPromise(promise);
+    const status = process();
     // Assert
     expect(status.isPending).toBe(true);
   });
   it("produces a status with no errors", () => {
     // Arrange
-    const promise = new Promise(() => {});
     // Act
-    const status = processPromise(promise);
+    const status = process();
     // Assert
     expect(status.hasError).toBe(false);
   });
   it("produces a status with no value when first", () => {
     // Arrange
-    const promise = new Promise(() => {});
     // Act
-    const status = processPromise(promise);
+    const status = process();
     // Assert
     expect(status.hasValue).toBe(false);
   });
   it("produces a status with no value when following a status with no value", () => {
     // Arrange
-    const promise = new Promise(() => {});
     const previousStatus: AsyncStatus<number> = {
       isPending: false,
       hasValue: false,
       hasError: false,
-      source: new Promise(() => {}),
     };
     // Act
-    const status = processPromise(promise, previousStatus);
+    const status = process(previousStatus);
     // Assert
     expect(status.hasValue).toBe(false);
   });
   it("produces a status that maintains the previous value", () => {
     // Arrange
-    const promise = new Promise(() => {});
     const previousStatus: AsyncStatus<number> = {
       isPending: false,
       hasValue: true,
       value: 5,
       hasError: false,
-      source: new Promise(() => {}),
     };
     // Act
-    const status = processPromise(promise, previousStatus);
+    const status = process(previousStatus);
     // Assert
     expect(status.hasValue).toBe(true);
     if (!status.hasValue) return;
@@ -74,59 +58,24 @@ describe("processPromise", () => {
 });
 
 describe("succeed", () => {
-  it("maintains the promise source", () => {
-    // Arrange
-    const source = new Promise<number>(() => {});
-    const previousStatus: AsyncStatus<number> = {
-      isPending: true,
-      hasValue: false,
-      hasError: false,
-      source,
-    };
-    // Act
-    const status = succeed(previousStatus, 5);
-    // Assert
-    expect(status.source).toBe(source);
-  });
   it("produces a non-pending status", () => {
     // Arrange
-    const source = new Promise<number>(() => {});
-    const previousStatus: AsyncStatus<number> = {
-      isPending: true,
-      hasValue: false,
-      hasError: false,
-      source,
-    };
     // Act
-    const status = succeed(previousStatus, 5);
+    const status = succeed(5);
     // Assert
     expect(status.isPending).toBe(false);
   });
   it("produces a status with no errors", () => {
     // Arrange
-    const source = new Promise<number>(() => {});
-    const previousStatus: AsyncStatus<number> = {
-      isPending: true,
-      hasValue: false,
-      hasError: false,
-      source,
-    };
     // Act
-    const status = succeed(previousStatus, 5);
+    const status = succeed(5);
     // Assert
     expect(status.hasError).toBe(false);
   });
   it("produces a status with the provided value", () => {
     // Arrange
-    const source = new Promise<number>(() => {});
-    const previousStatus: AsyncStatus<number> = {
-      isPending: true,
-      hasValue: false,
-      hasError: false,
-      source,
-    };
     // Act
-    const status = succeed(previousStatus, 5);
+    const status = succeed(5);
     // Assert
     expect(status.hasValue).toBe(true);
     if (!status.hasValue) return;
@@ -135,29 +84,12 @@ describe("succeed", () => {
 });
 
 describe("fail", () => {
-  it("maintains the promise source", () => {
-    // Arrange
-    const source = new Promise<number>(() => {});
-    const previousStatus: AsyncStatus<number, Error> = {
-      isPending: true,
-      hasValue: false,
-      hasError: false,
-      source,
-    };
-    const error = new Error("Oops!");
-    // Act
-    const status = fail(previousStatus, error);
-    // Assert
-    expect(status.source).toBe(source);
-  });
   it("produces a non-pending status", () => {
     // Arrange
-    const source = new Promise<number>(() => {});
     const previousStatus: AsyncStatus<number, Error> = {
       isPending: true,
       hasValue: false,
       hasError: false,
-      source,
     };
     const error = new Error("Oops!");
     // Act
@@ -167,12 +99,10 @@ describe("fail", () => {
   });
   it("produces a status with the provided error", () => {
     // Arrange
-    const source = new Promise<number>(() => {});
     const previousStatus: AsyncStatus<number, Error> = {
       isPending: true,
       hasValue: false,
       hasError: false,
-      source,
     };
     const error = new Error("Oops!");
     // Act
@@ -184,12 +114,10 @@ describe("fail", () => {
   });
   it("produces a status with no value when following a status with no value", () => {
     // Arrange
-    const source = new Promise<number>(() => {});
     const previousStatus: AsyncStatus<number, Error> = {
       isPending: true,
       hasValue: false,
       hasError: false,
-      source,
     };
     const error = new Error("Oops!");
     // Act
@@ -199,13 +127,11 @@ describe("fail", () => {
   });
   it("produces a status that maintains the previous value", () => {
     // Arrange
-    const source = new Promise<number>(() => {});
     const previousStatus: AsyncStatus<number, Error> = {
       isPending: true,
       hasValue: true,
       value: 5,
       hasError: false,
-      source,
     };
     const error = new Error("Oops!");
     // Act
@@ -218,21 +144,6 @@ describe("fail", () => {
 });
 
 describe("mapAsyncStatus", () => {
-  it("uses the provided source promise when given", () => {
-    // Arrange
-    const baseStatus: AsyncStatus<number> = {
-      isPending: false,
-      hasValue: false,
-      hasError: false,
-      source: new Promise<number>(() => {}),
-    };
-    const mapper = (n: number) => n.toString();
-    const mappedPromise = baseStatus.source.then(mapper);
-    // Act
-    const mappedStatus = mapAsyncStatus(baseStatus, mapper, mappedPromise);
-    // Assert
-    expect(mappedStatus.source).toBe(mappedPromise);
-  });
   it("preserves pending and error state from the base status", () => {
     // Arrange
     const baseStatus: AsyncStatus<number> = {
@@ -240,12 +151,10 @@ describe("mapAsyncStatus", () => {
       hasValue: false,
       hasError: true,
       error: new Error("Test Error"),
-      source: new Promise<number>(() => {}),
     };
     const mapper = (n: number) => n.toString();
-    const mappedPromise = baseStatus.source.then(mapper);
     // Act
-    const mappedStatus = mapAsyncStatus(baseStatus, mapper, mappedPromise);
+    const mappedStatus = mapAsyncStatus(baseStatus, mapper);
     // Assert
     expect(mappedStatus).toMatchObject({
       isPending: false,
@@ -259,12 +168,10 @@ describe("mapAsyncStatus", () => {
       isPending: false,
       hasValue: false,
       hasError: false,
-      source: new Promise<number>(() => {}),
     };
     const mapper = (n: number) => n.toString();
-    const mappedPromise = baseStatus.source.then(mapper);
     // Act
-    const mappedStatus = mapAsyncStatus(baseStatus, mapper, mappedPromise);
+    const mappedStatus = mapAsyncStatus(baseStatus, mapper);
     // Assert
     expect(mappedStatus.hasValue).toBe(false);
   });
@@ -275,12 +182,10 @@ describe("mapAsyncStatus", () => {
       hasValue: true,
       value: 1,
       hasError: false,
-      source: new Promise<number>(() => {}),
     };
     const mapper = (n: number) => n.toString();
-    const mappedPromise = baseStatus.source.then(mapper);
     // Act
-    const mappedStatus = mapAsyncStatus(baseStatus, mapper, mappedPromise);
+    const mappedStatus = mapAsyncStatus(baseStatus, mapper);
     // Assert
     expect(mappedStatus.hasValue && mappedStatus.value).toBe("1");
   });
