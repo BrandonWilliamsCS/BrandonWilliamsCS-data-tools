@@ -1,2 +1,1 @@
-// Nothing directly here; import by subdirectory.
-export {}
+export * from "./Outcome";
