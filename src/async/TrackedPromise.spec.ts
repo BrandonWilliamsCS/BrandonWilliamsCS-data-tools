@@ -12,7 +12,6 @@ describe("TrackedPromise", () => {
       expect(tracked.currentStatus).toEqual({
         isPending: true,
         hasError: false,
-        source: promise,
         hasValue: false,
       });
     });
@@ -30,7 +29,6 @@ describe("TrackedPromise", () => {
       expect(tracked.currentStatus).toEqual({
         isPending: false,
         hasError: false,
-        source: promise,
         hasValue: true,
         value: "value",
       });
@@ -50,7 +48,6 @@ describe("TrackedPromise", () => {
         isPending: false,
         hasError: true,
         error: "error",
-        source: promise,
         hasValue: false,
       });
     });
@@ -70,7 +67,6 @@ describe("TrackedPromise", () => {
       expect(tracked.currentStatus).toEqual({
         isPending: true,
         hasError: false,
-        source: promise,
         hasValue: true,
         value: "previousValue",
       });
@@ -103,7 +99,6 @@ describe("TrackedPromise", () => {
       expect(next).toHaveBeenCalledWith({
         isPending: false,
         hasError: false,
-        source: promise,
         hasValue: true,
         value: "value",
       });
@@ -140,7 +135,6 @@ describe("TrackedPromise", () => {
         isPending: false,
         hasError: true,
         error: "error",
-        source: promise,
         hasValue: false,
       });
     });
@@ -183,7 +177,6 @@ describe("TrackedPromise", () => {
         isPending: false,
         hasError: true,
         error: "error",
-        source: promise,
         hasValue: true,
         value: "previousValue",
       });

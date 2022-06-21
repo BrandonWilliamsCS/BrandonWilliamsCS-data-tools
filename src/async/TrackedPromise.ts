@@ -1,10 +1,8 @@
 import { Observable, Subject } from "rxjs";
 import { AsyncStatus } from "./AsyncStatus";
-import { AsyncStatusStream, trackPromise } from "./index";
+import { trackPromise } from "./index";
 
-export class TrackedPromise<T, E = any>
-  implements Promise<T>, AsyncStatusStream<T, E>
-{
+export class TrackedPromise<T, E = any> implements Promise<T> {
   private latestStatus: AsyncStatus<T, E>;
   private readonly statusSubject = new Subject<AsyncStatus<T, E>>();
 

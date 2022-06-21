@@ -59,7 +59,7 @@ describe("BaseAsyncValueModel", () => {
       // Assert
       expect(result).rejects.toBe("failure");
     });
-    fit("resolves with latest value when current pending operation fails with fallback", async () => {
+    it("resolves with latest value when current pending operation fails with fallback", async () => {
       // Arrange
       const { operation, promiseSets } = makeTestOperation();
       const valueModel = new BaseAsyncValueModel(operation);
